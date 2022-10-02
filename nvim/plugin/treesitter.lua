@@ -1,6 +1,6 @@
 -- Treesitter
 
---[[require('nvim-treesitter.configs').setup({
+require('nvim-treesitter.configs').setup({
   ensure_installed = { "lua", "rust", "toml" },
   auto_install = true,
   highlight = {
@@ -13,4 +13,4 @@
     extended_mode = true,
     max_file_lines = nil
   }
-})]]
+})

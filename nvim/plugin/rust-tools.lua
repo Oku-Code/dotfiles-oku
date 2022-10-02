@@ -1,6 +1,6 @@
 -- LSP
 
-local rt = {
+--[[local rt = {
   server = {
     settings = {
        on_attach = function(_, bufnr)
@@ -17,11 +17,10 @@ local rt = {
       },
     }
   },
-}
+}]]
 
-require('rust-tools').setup(rt)
+-- require('rust-tools').setup(rt)
 
---[[
 local sign = function(opts)
  vim.fn.sign_define(opts.name, {
    texthl = opts.name,
@@ -51,6 +50,6 @@ vim.diagnostic.config({
 vim.cmd([[
   set signcolumn=yes
   autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false})
-]]
+]])
 
 

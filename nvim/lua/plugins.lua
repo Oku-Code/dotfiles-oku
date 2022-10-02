@@ -21,7 +21,6 @@ if fn.empty(fn.glob(install_path)) > 0 then
   install_path
  }
 
- print "Installing packer close and reopen neovim"
  vim.cmd[[packadd packer.nvim]]
 end
 
@@ -65,6 +64,7 @@ return require('packer').startup({
         -- Color Schemes
 		use('gruvbox-community/gruvbox')
         use('rebelot/kanagawa.nvim')
+        use('navarasu/onedark.nvim')
 
         -- Lua Line
         use(
@@ -75,6 +75,14 @@ return require('packer').startup({
         
         -- Nvim-tree
         use('kyazdani42/nvim-tree.lua')
+        --[[use(
+         {'nvim-neo-tree/neo-tree.nvim',
+           requires = {
+                    "nvim-lua/plenary.nvim",
+                    "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
+                    "MunifTanjim/nui.nvim",}
+         }
+         )]]
 
         ---------
         -- LSP --
@@ -114,11 +122,8 @@ return require('packer').startup({
         use('hrsh7th/cmp-buffer')
         use('hrsh7th/vim-vsnip')
 
-        -- Treesitter don't work
-        --[[use({
-         'nvim-treesitter/nvim.treesitter',
-         run = ':TSUpdate'
-        })]]
+        -- Treesitter
+        use('nvim-treesitter/nvim-treesitter')
 
         ----------------------------
         -- Debug and test in Rust --
@@ -150,7 +155,6 @@ return require('packer').startup({
          tag = "v2.*",
          requires = 'kyazdani42/nvim-web-devicons'
         })
-
         
 	end
 })
