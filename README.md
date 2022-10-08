@@ -1,4 +1,4 @@
-Dotfiles - Oku
+# Dotfiles - Oku
 
 Here are some dotfiles for my configurations, and this readme to have a guide how to use and configure for the following programs:
 
