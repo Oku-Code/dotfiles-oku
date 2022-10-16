@@ -5,6 +5,7 @@
 -------------------
 
 -- Install Packer Automatically
+
 local execute = vim.api.nvim_command
 local fn = vim.fn
 local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
@@ -58,11 +59,7 @@ return require('packer').startup({
         use('navarasu/onedark.nvim')
 
         -- Lua Line
-        use(
-          {'nvim-lualine/lualine.nvim',
-            requires = { 'kyazdani42/nvim-web-devicons', opt = true }
-          }
-        )
+        use('nvim-lualine/lualine.nvim')
 
         -- Autopair
         use('windwp/nvim-ts-autotag')
@@ -70,6 +67,7 @@ return require('packer').startup({
         
         -- Nvim-tree
         use('kyazdani42/nvim-tree.lua')
+        use('kyazdani42/nvim-web-devicons')
         --[[use(
          {'nvim-neo-tree/neo-tree.nvim',
            requires = {
@@ -89,8 +87,6 @@ return require('packer').startup({
           'neovim/nvim-lspconfig'
         })
         
-        use('jose-elias-alvarez/null-ls.nvim')
-
         -------------------
         -- Rust Specifics -
         -------------------
@@ -128,7 +124,7 @@ return require('packer').startup({
         -- Debug and test in Rust --
         ----------------------------
 
-        use('puremourning/vimspector')
+        -- use('puremourning/vimspector')
 
         ---------------
         -- Terminal  --
@@ -152,7 +148,6 @@ return require('packer').startup({
         use({
          'akinsho/bufferline.nvim',
          tag = "v2.*",
-         requires = 'kyazdani42/nvim-web-devicons'
         })
 
         ---------------
@@ -174,7 +169,5 @@ return require('packer').startup({
  
         use('lewis6991/gitsigns.nvim')
         use('dinhhuy258/git.nvim')
-
-
 	end
 })

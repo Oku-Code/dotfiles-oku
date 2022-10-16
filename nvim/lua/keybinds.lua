@@ -15,23 +15,36 @@ map('n', '<C-x>', '<CMD>q!<CR>')
 
 map('n', '<C-n>', '<CMD>NvimTreeToggle<CR>')
 
--- Vimspector
-
-vim.cmd([[
-nmap <F9> <cmd>call vimspector#Launch()<cr>
-nmap <F5> <cmd>call vimspector#StepOver()<cr>
-nmap <F8> <cmd>call vimspector#Reset()<cr>
-nmap <F11> <cmd>call vimspector#StepOver()<cr>")
-nmap <F12> <cmd>call vimspector#StepOut()<cr>")
-nmap <F10> <cmd>call vimspector#StepInto()<cr>")
-]])
-map('n', "Db", ":call vimspector#ToggleBreakpoint()<cr>")
-map('n', "Dw", ":call vimspector#AddWatch()<cr>")
-map('n', "De", ":call vimspector#Evaluate()<cr>")
-
 -- Floaterm
 
 map('n', "<leader>t", ":FloatermNew --name=Terminal --height=0.8 --width=0.7 --autoclose=2 fish <CR>")
 map('n', "t", ":FloatermToggle Terminal<CR>")
 map('n', "<Esc>", "<C-\\><C-n>:q<CR>")
+
+-- Telescope
+
+map('n', '<leader>sl', '<CMD>SessionLoad<CR>')
+
+-- Keybindings Telescope
+
+map('n', '<leader>fr', '<CMD>Telescope oldfiles<CR>')
+map('n', '<leader>ff', '<CMD>Telescope find_files<CR>')
+map('n', '<leader>fb', '<CMD>Telescope file_browser<CR>')
+map('n', '<leader>fw', '<CMD>Telescope live_grep<CR>')
+map('n', '<leader>ht', '<CMD>Telescope colorscheme<CR>')
+
+-- Keybindings bufferline
+
+map('n', '<Tab>', '<CMD>BufferlineCycleNext<CR>')
+map('n', '<S-Tab>', '<CMD>BufferlineCyclePrev<CR>')
+
+-- Keybindings LSPSaga
+
+map('n', 'K', '<CMD>Lspsaga hover_doc<CR>')
+map('n', '<C-j>', '<Cmd>Lspsaga diagnostic_jump_next<CR>')
+map('n', 'K', '<Cmd>Lspsaga hover_doc<CR>')
+map('n', 'gd', '<Cmd>Lspsaga lsp_finder<CR>')
+map('i', '<C-k>', '<Cmd>Lspsaga signature_help<CR>')
+map('n', 'gp', '<Cmd>Lspsaga preview_definition<CR>')
+map('n', 'gr', '<Cmd>Lspsaga rename<CR>')
 

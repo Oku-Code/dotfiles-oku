@@ -3,7 +3,6 @@ if status is-interactive
 end
 
 set fish_greeting
-alias sudo='doas'
 
 # For deno
 export DENO_INSTALL="/home/oku/.deno"
