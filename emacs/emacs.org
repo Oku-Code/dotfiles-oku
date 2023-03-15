@@ -1,0 +1,901 @@
+#+TITLE: Configuration file for GNU/emacs
+#+AUTHOR: Oku 
+#+DATE: <2023-03-06 Mon>
+#+DESCRIPTION: Oku's config for GNU/Emacs
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+
+* Emacs configuration from scratch
+
+This will be the stating point of this configuration, is better in my opinion to have
+a vanilla config, than use a framework on top of emacs.
+
+
+** Basics
+
+Let's start with the basics of this config
+
+*** Welcome message
+
+To quit the welcome message is simple as put this line in your ~init.el~ file.
+
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t)
+#+end_src
+
+*** Esc with quit prompts
+
+Easy to escape the prompts with esc 
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
+
+*** Remove unnecesary stuff
+
+All the UI is annoying let's disable it
+
+#+begin_src emacs-lisp
+;; Remove unnecesary stuff
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
+(set-fringe-mode -10)
+#+end_src
+
+*** Remove also the menu bar
+
+#+begin_src emacs-lisp 
+;; Remove the menu bar
+(menu-bar-mode -1)
+#+end_src
+
+*** Set the visible bell
+
+#+begin_src emacs-lisp
+;; Set visible bell
+(setq visible-bell t)
+#+end_src
+
+*** Font configuration
+
+Defaults fonts aren't cool, better a custom one
+
+#+begin_src emacs-lisp
+          ;; Font Config -> Family
+          ;;(set-frame-font "Iosevka:size=14" nil t)
+          (set-face-attribute 'default nil :font "Iosevka :antialias=subpixel" :height 110)
+          ;;Set fixed face -> 
+          (set-face-attribute 'fixed-pitch nil :font "Iosevka" :weight 'medium :height 130)
+          ;; Set variable face -> src-blocks
+          (set-face-attribute 'variable-pitch nil :font "Iosevka" :weight 'regular :height 130)
+
+          (use-package mixed-pitch
+            :defer t
+            :config
+            (setq mixed-pitch-set-height nil)
+            (dolist (face'(org-date org-priority org-tag org-special-keyword))
+                (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
+#+end_src
+
+*** Display some modes
+
+#+begin_src emacs-lisp
+;; Some modes for my taste
+  (server-start)
+  (display-battery-mode)
+  (setq use-short-answers t)
+#+end_src
+
+
+** Packages
+
+In this part i need to write what kind of packages i'm using also have a insight of all of them at least...
+
+*** Initialize packages sources
+
+Here we define sources, the common ones are:
+
+1) Melpa
+2) Org -> This is a must if you want to use org
+3) Elpa
+
+#+begin_src emacs-lisp
+;; PACKAGES FOR EMACS
+;; Initialize packages sources
+(require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			("org" . "https://orgmode.org/elpa/")
+			("elpa" . "https://elpa.gnu.org/packages/")))
+
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+#+end_src
+
+*** Use package
+
+This allow to use the ~(use-package)~ utility to install packages
+
+#+begin_src emacs-lisp
+;; Initialize use-package
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+(setq use-package-verbose t)
+#+end_src
+
+*** Main packages
+
+Here we defining the main packages for bring cool functionality to your GNU/Emacs
+
+**** IVY
+
+#+begin_src emacs-lisp
+  ;; MAIN PACKAGES
+  ;; Ivy - for replace find command
+  (use-package ivy
+    :after dashboard
+    :diminish
+    :bind (("C-s" . swiper)
+           :map ivy-minibuffer-map
+           ("TAB" . ivy-alt-done)
+           ("C-l" . ivy-alt-done)
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line)
+           :map ivy-switch-buffer-map
+           ("C-k" . ivy-previous-line)
+           ("C-l" . ivy-done)
+           ("C-d" . ivy-switch-buffer-kill)
+           :map ivy-reverse-i-search-map
+           ("C-k" . ivy-previous-line)
+           ("C-d" . ivy-reverse-i-search-kill))
+    :config
+    (message "Ivy loaded...")
+    (ivy-mode 1))
+#+end_src
+
+**** IVY rich
+
+#+begin_src emacs-lisp
+;; Ivy rich for more info about commands on emacs
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
+#+end_src
+
+**** IVY presient
+
+#+begin_src emacs-lisp
+;;Ivy presient
+(use-package ivy-prescient
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
+  :config
+  (ivy-prescient-mode 1))
+#+end_src
+
+**** Counsel
+
+#+begin_src emacs-lisp
+;;Counsel
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+	 :map minibuffer-local-map
+	 ("C-a" . counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (message "Counsel Loaded...")
+  (counsel-mode 1))
+#+end_src
+
+**** Generalk
+
+#+begin_src emacs-lisp
+;; KEYBINDINGS
+;; General package
+;;(use-package general
+ ;;:after evil
+;; :config
+;; (general-create-definer rune/leader-keys
+;;     :keymaps '(normal insert visual emacs)
+;;     :prefix "SPC"
+;;     :global-prefix "C-SPC")
+
+;; (rune/leader-keys
+;;    "t" '(:ignore t :which-key "toggles")
+;;    "tt" '(counsel-load-theme :which-key "Choose Theme")
+;;    "tv" '(eval-buffer :which-key "Eval Buffer")
+;;    "tc" '(comment-region :which-key "Comment Region")
+;;    "tu" '(uncomment-region :which-key "Uncomment Region")
+;;    "ta" '(org-agenda-list :which-key "Org-agenda list")
+;;    "bi" '(buffer-menu :which-key "Buffer Menu")))
+
+#+end_src
+
+**** Evil mode
+
+Personal preference if you want
+
+#+begin_src emacs-lisp
+  ;; VIM BINDINGS FOR EMACS
+  ;; Evil Mode
+  ;;  (use-package evil
+  ;;    :init
+  ;;   (setq evil-want-integration t)
+  ;;   (setq evil-want-keybinding nil)
+  ;;   (setq evil-want-C-u-scroll t)
+  ;;   (setq evil-want-C-i-jump nil)
+  ;;   :config
+  ;;   (evil-mode 1)
+  ;;   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  ;;   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  ;;   ;;Use visual line motions
+  ;;   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  ;;   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  ;;   (evil-set-initial-state 'message-buffer-mode 'normal)
+  ;;   (evil-set-initial-state 'dashboard-mode 'normal))
+
+  ;; ;; Evil Collection
+  ;; (use-package evil-collection
+  ;;    :after evil
+  ;;    :config
+  ;;    (evil-collection-init))
+#+end_src
+
+**** Hydra
+
+I'm blind and old person so...
+
+#+begin_src emacs-lisp
+;; Hidra
+;;(use-package hydra
+;;  :defer t)
+;;(defhydra hydra-text-scale (:timeout 5)
+;;  "Scale Text"
+;;  ("j" text-scale-increase "in")
+;;  ("k" text-scale-decrease "out")
+;;  ("f" nil "finished" :exit t))
+
+;;(rune/leader-keys
+;;  "ts" '(hydra-text-scale/body :which-key "Scale Text"))
+#+end_src
+
+
+** Themes and UI config
+
+Time to rice
+
+*** All-the-icons
+
+#+begin_src emacs-lisp
+;; All icons
+(use-package all-the-icons
+  :after doom-modeline)
+#+end_src
+
+*** Dashboard
+
+Scratch is pretty, but i like to have a nice welcome screen
+
+#+begin_src emacs-lisp
+    ;; Dashboard
+    (use-package dashboard
+      :ensure t
+      :config
+      (dashboard-setup-startup-hook)
+      ;; Custom message title
+      (setq dashboard-banner-logo-title "レミリア・スカーレット ~ ( The emacs powerhouse )")
+      ;; My beloved
+      (setq dashboard-startup-banner "~/Pictures/remilia.png")
+      (setq dashboard-center-content t)
+      (setq dashboard-show-shortcut nil)
+      (setq dashboard-items '((recents . 3)
+                              (agenda . 3)
+                              (projects . 3))
+      (setq dashboard-set-footer nil)
+      (setq dashboard-set-info-init t)
+      (setq dashboard-set-file-icons t)
+      (setq dashboard-set-heading-icons t)
+      ;; Format: "(icon title help action face prefix suffix)"
+      (setq dashboard-set-navigator t))
+
+#+end_src
+
+*** Doom-modeline
+
+Like lua line, but for emacs
+
+#+begin_src emacs-lisp
+  ;; Doom modeline
+  (use-package doom-modeline
+     :ensure t
+     :init (doom-modeline-mode 1)
+     :custom
+     (doom-modeline-height 30))
+#+end_src
+
+*** Doom-themes
+
+If you aren't sure what colors do you want
+
+#+begin_src emacs-lisp
+    ;; Doom Themes
+    (use-package doom-themes)
+    ;; Loading themes based to the time
+    (let ((hour (string-to-number (substring (current-time-string) 11 13))))
+      (if (or ( > hour 19 ) (< hour 7))
+          (load-theme 'doom-Iosvkem t)
+          (load-theme 'doom-one-light t)))
+#+end_src
+
+*** Which-key
+
+Emacs has so many keybindings, so it's better to know how those work
+
+#+begin_src emacs-lisp
+  ;; Which key package
+(use-package which-key
+    :after dashboard
+    :defer 0
+    :init 
+    :diminish which-key-mode
+    :config
+    (which-key-mode)
+    (setq which-key-idle-delay 1))
+#+end_src
+
+*** Places where you want row numbers
+
+#+begin_src emacs-lisp
+      ;; Enable number row
+      (column-number-mode)
+      (global-display-line-numbers-mode)
+
+      ;; Disable line numbers for some modes
+      (dolist (mode '(org-mode-hook
+                      term-mode-hook
+                      eshell-mode-hook
+                      markdown-mode-hook
+                      org-agenda-mode-hook
+                      agenda-command-mode-hook
+                      calendar-mode-hook
+                      cargo-run-mode-hook
+                      dired-mode-hook
+                      info-mode-hook))
+        (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+*** Rainbow delimiters
+
+#+begin_src emacs-lisp
+;; Use delimiter rainbow
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+*** Helpful
+
+Really helpful to describe what all this things do.
+
+#+begin_src emacs-lisp
+;; Helpful package
+(use-package helpful
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :custom
+  (counsel-describe-function-funtion #'helpful-callable)
+  (counsel-describe-variable-funtion #'helpful-variable)
+  :bind
+  ([remap describe-command] . helpful-command)
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . heplful-key))
+#+end_src
+
+*** Dired
+
+The ultimate file finder for emacs
+
+#+begin_src emacs-lisp
+  ;; DIRED ????????
+  (use-package dired
+    :ensure nil
+    :commands (dired dired-jump)
+    :bind (("C-x C-j" . dired-jump))
+    :custom ((dired-listening-switches "-agho --group-directories-first")))
+    ;; :config
+    ;; (evil-collection-define-key 'normal 'dired-mode-map
+    ;;     "h" 'dired-single-up-directory
+    ;;     "l" 'dired-single-buffer))
+
+  (use-package dired-single
+    :after dired)
+
+  (use-package all-the-icons-dired
+    :hook (dired-mode . all-the-icons-dired-mode))
+
+  (use-package dired-hide-dotfiles
+    :hook (dired-mode . dired-hide-dotfiles-mode))
+  ;;   :config
+  ;;   (evil-collection-define-key 'normal 'dired-mode-map
+  ;;     "H" 'dired-hide-dotfiles-mode))
+
+(use-package dired-open
+    :after dired
+    :config
+    (setq dired-open-extensions '(("png", "feh")
+                                  ("mkv", "mpv"))))
+
+#+end_src
+
+*** Startup frame
+
+#+begin_src emacs-lisp
+(setq initial-frame-alist
+   '((fullscreen . maximized)))
+#+end_src
+
+
+** Org mode
+
+The killer feature of emacs and one of the best tools for organize your life.
+
+*** Org mode config with the agenda 
+
+#+begin_src emacs-lisp
+;; ORG MODE 
+(defun ogm/org-mode-setup ()
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1))
+
+(use-package org
+  :commands (org-agenda)
+  :hook (org-mode . ogm/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾"
+	org-hide-emphasis-markers t)
+
+  ;;ORG AGENDA
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+  (setq org-agenda-files
+	(list "~/Documents/OrgFiles/task.org"))
+
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)"))))
+#+end_src
+
+*** OB-rust
+
+Rust code in org with org-babel
+
+#+begin_src emacs-lisp
+;; OB-RUST 
+(use-package ob-rust
+  :after org-babel)
+#+end_src
+
+*** Org bullets
+
+Nice heading bullets
+
+#+begin_src emacs-lisp
+;;Org Bullets
+(use-package org-bullets
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+#+end_src
+
+*** Org faces
+
+Better rendering fonts in org-mode
+
+#+begin_src emacs-lisp
+  ;; Correct heading font
+  (require 'org-faces)
+  (with-eval-after-load 'org-faces
+    (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.1)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.0)
+                  (org-level-6 . 1.0)
+                  (org-level-7 . 1.0)
+                  (org-level-8 . 1.0)))
+    (set-face-attribute (car face) nil :font "Iosevka" :weight 'bold :height (cdr face)))
+  
+;; Ensure the correct fonts for the ORGMODE
+(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-special-keyword nil :inherit'(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+#+end_src
+
+*** Center the content in org
+
+This is to have a nice presentation of the content in org mode.
+
+#+begin_src emacs-lisp
+;; To center the content org-mode 
+(defun ogm/org-mode-visual-fill()
+  (setq visual-fill-column-width 175
+ 	visual-fill-column-center-text t)
+   (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . ogm/org-mode-visual-fill))
+#+end_src
+
+*** Org Babel
+
+#+begin_src emacs-lisp
+;; ORG BABEL
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (rust . t)))
+
+(push '("conf-unix" . conf-unix) org-src-lang-modes))
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+*** Estructure templates
+
+#+begin_src emacs-lisp
+;; Estructure templates
+(with-eval-after-load 'org
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh". "src shell"))
+  (add-to-list 'org-structure-template-alist '("el". "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py". "src python"))
+  (add-to-list 'org-structure-template-alist '("rs". "src rust")))
+#+end_src
+
+*** Auto tangle
+
+This is for write the config file after save it, you need to add the properties tag at the beggining of the file
+
+#+begin_src emacs-lisp
+  ;; Auto-tangle 
+  (defun ogm/org-babel-tangle-config ()
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "~/Documents/emacs.org"))
+      ;;Dinamic Scoping
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'ogm/org-babel-tangle-config)))
+#+end_src
+
+
+
+** Integrated Development Enviroment
+
+As the name suggest you write code, debbugging code and also setting up projects, this is amazing and great for a developer.
+
+*** MAGIT and Projectile
+
+First world class github client and project creation tool
+
+#+begin_src emacs-lisp
+;; PROJECTILE AND MAGIT
+;; Setup projectile
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/Documents")
+    (setq projectile-project-search-path '("~/Documents")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+;; Magit - git version control
+(use-package magit
+  :commands (magit-status)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  
+#+end_src
+
+
+*** LSP UI
+
+UI setup for code modes like ~C~, ~C++~, ~Python~, ~Rust~ and more.
+
+#+begin_src emacs-lisp
+  ;; LSP-MODE - LANGUAGE SERVER PROTOCOL 
+  ;; UI SETUP FROM CODE MODES
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-enable t)
+    (lsp-ui-doc-position 'left)
+    (lsp-ui-peek-always-show t)
+    (lsp-ui-sideline-show-hover t))
+
+  (defun efs/lsp-mode-setup ()
+    (setq lsp-headeline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headeline-breadcrumb-mode)
+    :hook (lsp-mode . efs/lsp-mode-setup))
+#+end_src
+
+
+*** Smartpairs
+
+To close and open braces automatically
+
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :after lsp)
+  (add-hook 'rust-mode-hook #'smartparens-mode)
+  (add-hook 'python-mode-hook #'smartparens-mode)
+#+end_src
+
+
+*** LSP Mode
+
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :config
+    (lsp-enable-which-key-integration t)
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    ;; rust-escentials
+    :custom
+    (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-rust-analyzer-inlay-hints-mode)
+    (lsp-rust-analyzer-server-display-inlay-hints t)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+    ;; (lsp-rust-analyzer-display-chaining-hints nil)
+    ;; (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+    ;; (lsp-rust-analyzer-display-closure-return-type-hints nil)
+    ;; (lsp-rust-analyzer-display-parameter-hints nil)
+    ;; (lsp-rust-analyzer-display-reborrow-hints nil)
+    (lsp-eldoc-render-all t)
+    (lsp-idle-delay 0.6))
+#+end_src
+
+
+*** LSP ivy
+
+#+begin_src emacs-lisp 
+;; LSP IVY
+(use-package lsp-ivy
+  :after lsp)
+#+end_src
+
+
+*** Evil nerd commenter
+
+Comment code in a simple way
+
+#+begin_src emacs-lisp
+;; COMMENT CODE
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+#+end_src
+
+
+*** Server languages
+
+Some programming languages i like to work with
+
+
+**** Typescript 
+
+#+begin_src emacs-lisp 
+  ;; TYPESCRIPT SERVER
+  (use-package typescript-mode
+    :mode "\\.ts\\'"
+    :hook (typescript-mode . lsp-deferred)
+    :config
+    (setq typescript-indented-level 2))
+#+end_src
+
+**** Rust
+
+#+begin_src emacs-lisp
+;; RUST SUPPORT
+(use-package rustic
+   :ensure
+   :bind (:map rustic-mode-map
+                ("M-j" . lsp-ui-imenu)
+                ("M-?" . lsp-find-references)
+                ("C-c C-c l" . flycheck-list-errors)
+                ("C-c C-c a" . lsp-execute-code-action)
+                  ("C-c C-c r" . lsp-rename)
+                  ("C-c C-c q" . lsp-workspace-restart)
+                  ("C-c C-c Q" . lsp-workspace-shutdown)
+                  ("C-c C-c s" . lsp-rust-analyzer-status))
+
+      :config
+   ;; (setq lsp-eldoc-hook nil)
+   ;; (setq lsp-enable-symbol-highlighting nil)
+   ;; (setq lsp-signature-auto-activate nil)
+      (setq rustic-format-on-save t)
+      (add-hook 'rustic-hook-mode 'rk/rustic-mode-hook)
+
+      (defun rk/rustic-mode-hook ()
+        (when buffer-file-name
+          (setq-local buffer-save-without-query t))
+        (add-hook 'before-save-hook 'lsp-format-buffer nil t)))
+
+    (add-hook 'rust-mode-hook(lambda ()
+                               (setq indent-tabs-mode nil)
+                               (prettify-symbols-mode))
+              #'lsp)
+#+end_src
+
+**** Python
+
+#+begin_src emacs-lisp
+  ;;PYTHON SERVER
+   (use-package lsp-pyright
+    :ensure t
+     :hook (python-mode . (lambda ()
+                (require 'lsp-pyright)
+                (lsp-deferred))))
+#+end_src
+
+
+*** Flycheck
+
+#+begin_src emacs-lisp
+(use-package flycheck
+   :after lsp-mode
+   :ensure)
+#+end_src
+
+
+*** Tree Sitter
+
+#+begin_src emacs-lisp
+;; TREE-SITTER
+(use-package tree-sitter
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs
+  :after tree-sitter)
+#+end_src
+
+
+*** Company and company box
+
+Better completion system
+
+#+begin_src emacs-lisp
+  ;; COMPANY FOR BETTER COMPLETION SYSTEM
+  (use-package company
+    :after lsp-mode
+    :hook (lsp-mode . company-mode)
+    :bind(:map company-active-map
+               ("<tab>" . company-complete-selection)
+               ("C-n" . company-select-next )
+               ("C-p" . company-select-previous)
+               ("M-<" . company-select-first)
+               ("M->" . company-select-last)
+               )
+         (:map lsp-mode-map
+               ("<tab>" . company-indent-or-complete-common))
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.5))
+
+  ;; COMPANY BOX - JUST BEAUTIFUL
+  (use-package company-box
+    :hook (company-mode . company-box-mode)) 
+#+end_src
+
+
+*** Markdown
+
+Org is the best, but you need to read docs in markdown as well
+
+#+begin_src emacs-lisp
+;; MARKDOWN
+(use-package markdown-mode
+  :mode "\\.md\\'"
+  :config
+  (setq markdown-command "marked")
+  (defun dw/set-markdown-header-font-sizes ()
+    (dolist (face '((markdown-header-face-1 . 1.2)
+                    (markdown-header-face-2 . 1.1)
+                    (markdown-header-face-3 . 1.0)
+                    (markdown-header-face-4 . 1.0)
+                    (markdown-header-face-5 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'normal :height (cdr face))))
+
+  (defun dw/markdown-mode-hook ()
+    (dw/set-markdown-header-font-sizes))
+
+  (add-hook 'markdown-mode-hook 'dw/markdown-mode-hook))
+#+end_src
+
+
+*** YASnippet
+
+Snippets, all need bolerplate code to make it beautiful
+
+#+begin_src emacs-lisp
+        ;; YASnippet
+        (use-package yasnippet
+          :diminish yas-minor-mode
+          :defer 5
+          :config
+          (add-to-list 'load-path
+                     "~/.emacs.d/snippets")
+        
+        (yas-global-mode 1))
+#+end_src
+
+
+** Speeding up emacs
+
+With all this packages and configurations emacs became slow when you start using it.
+
+#+begin_src emacs-lisp
+  ;;SPEEDING UP EMACS
+  ;;Garbage collections things
+  (setq gc-cons-threshold (* 2 1000 1000))
+
+  (defun efs/display-startup-time()
+    (message "Emacs loaded in %s with %d garbage collections"
+             (format "%.2f seconds"
+                     (float-time (time-subtract after-init-time before-init-time)))
+             gcs-done))
+
+  (add-hook 'emacs-startup-hook #'efs/display-startup-time)
+
+  ;; Adding a garbage collection package
+  (use-package gcmh
+    :diminish gcmh-mode
+    :config
+    (setq gcmh-idle-delay 5
+          gcmh-high-cons-threshold (* 16 1024 1024))
+    (gcmh-mode 1))
+
+  (defun gcmh/display-startup-time()
+    (lambda ()
+      (setq gc-cons-porcentage 0.1)))
+
+  (add-hook 'emacs-startup-hook #'gcmh/display-startup-time)
+#+end_src
+
+*** No littering
+
+To have a better cleaning in the files
+
+#+begin_src emacs-lisp
+;; NO-LITTERING
+(use-package no-littering)
+ (setq auto-save-file-name-transforms
+       `((".*", (no-littering-expand-var-file-name "auto-save/") t)))
+#+end_src
+
+ 
+#+begin_quote
+This is the end, so take whatever you want of there
+#+end_quote
