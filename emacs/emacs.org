@@ -9,7 +9,6 @@
 This will be the stating point of this configuration, is better in my opinion to have
 a vanilla config, than use a framework on top of emacs.
 
-
 ** Basics
 
 Let's start with the basics of this config
@@ -19,6 +18,7 @@ Let's start with the basics of this config
 To quit the welcome message is simple as put this line in your ~init.el~ file.
 
 #+begin_src emacs-lisp
+;; Quit startup message
 (setq inhibit-startup-message t)
 #+end_src
 
@@ -87,6 +87,7 @@ Defaults fonts aren't cool, better a custom one
 #+end_src
 
 
+
 ** Packages
 
 In this part i need to write what kind of packages i'm using also have a insight of all of them at least...
@@ -127,7 +128,7 @@ This allow to use the ~(use-package)~ utility to install packages
 (setq use-package-verbose t)
 #+end_src
 
-*** Main packages
+** Main packages
 
 Here we defining the main packages for bring cool functionality to your GNU/Emacs
 
@@ -182,21 +183,22 @@ Here we defining the main packages for bring cool functionality to your GNU/Emac
 **** Counsel
 
 #+begin_src emacs-lisp
-;;Counsel
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x b" . counsel-ibuffer)
-	 ("C-x C-f" . counsel-find-file)
-	 :map minibuffer-local-map
-	 ("C-a" . counsel-minibuffer-history))
-  :custom
-  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-  :config
-  (message "Counsel Loaded...")
-  (counsel-mode 1))
+  ;;Counsel
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)
+  	 ("C-x b" . counsel-ibuffer)
+  	 ("C-x C-f" . counsel-find-file)
+  	 :map minibuffer-local-map
+  	 ("C-x a" . counsel-minibuffer-history)
+  	 ("C-x f r" . counsel-recentf :wk "Find recent files"))
+    :custom
+    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+    :config
+    (message "Counsel Loaded...")
+    (counsel-mode 1))
 #+end_src
 
-**** Generalk
+**** General
 
 #+begin_src emacs-lisp
 ;; KEYBINDINGS
@@ -463,7 +465,7 @@ The killer feature of emacs and one of the best tools for organize your life.
   :config
   (setq org-ellipsis " ▾"
 	org-hide-emphasis-markers t)
-
+p
   ;;ORG AGENDA
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
