@@ -128,6 +128,7 @@ This allow to use the ~(use-package)~ utility to install packages
 (setq use-package-verbose t)
 #+end_src
 
+
 ** Main packages
 
 Here we defining the main packages for bring cool functionality to your GNU/Emacs
@@ -157,6 +158,8 @@ Here we defining the main packages for bring cool functionality to your GNU/Emac
     (message "Ivy loaded...")
     (ivy-mode 1))
 #+end_src
+
+#+RESULTS:
 
 **** IVY rich
 
@@ -703,7 +706,6 @@ Comment code in a simple way
 
 Some programming languages i like to work with
 
-
 **** Typescript 
 
 #+begin_src emacs-lisp 
@@ -842,15 +844,15 @@ Org is the best, but you need to read docs in markdown as well
 Snippets, all need bolerplate code to make it beautiful
 
 #+begin_src emacs-lisp
-        ;; YASnippet
-        (use-package yasnippet
-          :diminish yas-minor-mode
-          :defer 5
-          :config
-          (add-to-list 'load-path
-                     "~/.emacs.d/snippets")
-        
-        (yas-global-mode 1))
+  ;; YASnippet
+  (use-package yasnippet
+    :diminish yas-minor-mode
+    :defer 5
+    :config
+    (add-to-list 'load-path
+               "~/.emacs.d/snippets")
+
+  (yas-global-mode 1))
 #+end_src
 
 
