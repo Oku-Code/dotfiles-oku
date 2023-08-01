@@ -95,19 +95,24 @@ Self descriptive
 ** Removing unnecesary stuff and UI enhancements
 
 #+begin_src emacs-lisp
-  ;; Nice looking emacs
-  (scroll-bar-mode -1)
-  (tool-bar-mode -1)
-  (tooltip-mode -1)
-  (set-fringe-mode -10)
-  (menu-bar-mode -1)
-  (setq visible-bell t)
-  (setq use-short-answers t)
-  (setq initial-frame-alist
-    '((fullscreen . maximized)))
-  ;; For emacs-client buffers
-  (setq default-frame-alist
-     '((fullscreen . maximized)))
+;; Nice looking emacs
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(tooltip-mode -1)
+(set-fringe-mode -10)
+(menu-bar-mode -1)
+(setq visible-bell t)
+(setq use-short-answers t)
+
+(setq initial-frame-alist
+      '((fullscreen . maximized)))
+
+;; For emacs-client buffers
+(setq default-frame-alist
+      '((fullscreen . maximized)))
+
+;; Transparent emacs
+(add-to-list 'default-frame-alist '((alpha-background . 85)))
 #+end_src
 
 ** Keybindings
@@ -324,82 +329,87 @@ Easy way to edit files that requiries privileges
 Many bindings hope this give you ideas, taken from DT video series
 
 #+begin_src emacs-lisp
-      ;; General package
-      (use-package general
-        :after evil
-        :config
-        (general-create-definer rune/leader-keys
-          :keymaps '(normal insert visual emacs)
-          :prefix "SPC"
-          :global-prefix "C-SPC") 
+;; General package
+(use-package general
+  :after evil
+  :config
+  (general-create-definer rune/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC") 
 
-        (rune/leader-keys
-          "SPC" '(counsel-M-x :wk "Counsel M-x")
-          "f" '(counsel-find-file :wk "Counsel find file")
-          "a" '(counsel-minibuffer-history :wk "Counsel minibuffer history"))
-        
-        (rune/leader-keys
-          "p" '(:ignore t :which-key "Projectile")
-          "pc" '(projectile-command-map :wk "Projectile Commands"))
+  (rune/leader-keys
+    "r"  '(:ignore t :wk "Sudo edit")
+    "re" '(sudo-edit-find-file :wk "Find file"))
 
-        (rune/leader-keys
-          "t" '(:ignore t :which-key "Toggles")
-          "tt" '(load-theme :wk "Load Theme")
-          "tv" '(eval-buffer :which-key "Eval Buffer")
-          "tc" '(comment-region :which-key "Comment Region")
-          "tu" '(uncomment-region :which-key "Uncomment Region") 
-          "tl" '(display-line-numbers-mode :wk "Toggle lines numbers")
-          "tn" '(visual-line-mode :wk "Toggle truncated lines"))
+  (rune/leader-keys
+    "SPC" '(counsel-M-x :wk "Counsel M-x")
+    "f" '(counsel-find-file :wk "Counsel find file")
+    "a" '(counsel-minibuffer-history :wk "Counsel minibuffer history"))
 
-        (rune/leader-keys
-          "b" '(:ignore t :wk "Buffer")
-          "bm" '(buffer-menu :which-key "Buffer Menu")
-          "bi" '(counsel-ibuffer :wk "Counsel ibuffer")
-          "bn" '(next-buffer :wk "Next Buffer")
-          "bp" '(previous-buffer :wk "Previous Buffer")
-          "bk" '(kill-this-buffer :wk "Kill this buffer")
-          "br" '(revert-buffer :wk "Reload Buffer"))
+  (rune/leader-keys
+    "p" '(:ignore t :which-key "Projectile")
+    "pc" '(projectile-command-map :wk "Projectile Commands"))
 
-        (rune/leader-keys
-          "e" '(:ignore t :wk "Evaluate" )
-          "eb" '(eval-buffer :wk "Evaluate Elisp in buffer")
-          "ed" '(eval-defun :wk "Evaluate defun containing or after point")
-          "ee" '(eval-expression :wk "Evaluate an elips expresion")
-          "er" '(eval-region :wk "Evaluate region"))
+  (rune/leader-keys
+    "t" '(:ignore t :which-key "Toggles")
+    "tt" '(load-theme :wk "Load Theme")
+    "tv" '(eval-buffer :which-key "Eval Buffer")
+    "tc" '(comment-region :which-key "Comment Region")
+    "tu" '(uncomment-region :which-key "Uncomment Region") 
+    "tl" '(display-line-numbers-mode :wk "Toggle lines numbers")
+    "tn" '(visual-line-mode :wk "Toggle truncated lines"))
 
-        (rune/leader-keys
-          "h"  '(:ignore t :wk "Help")
-          "hf" '(describe-function :wk "Describe function")
-          "hv" '(describe-variable :wk "Describe Variable")
-          "h r r" '(reload-config :wk "Reload Config file"))
+  (rune/leader-keys
+    "b" '(:ignore t :wk "Buffer")
+    "bm" '(buffer-menu :which-key "Buffer Menu")
+    "bi" '(counsel-ibuffer :wk "Counsel ibuffer")
+    "bn" '(next-buffer :wk "Next Buffer")
+    "bp" '(previous-buffer :wk "Previous Buffer")
+    "bk" '(kill-this-buffer :wk "Kill this buffer")
+    "br" '(revert-buffer :wk "Reload Buffer"))
 
-        (rune/leader-keys
-          "i" '(:ignore t :wk "Ivy")
-          "ir" '(ivy-resume :wk "Ivy Resume")
-          "ib" '(ivy-switch-buffer-other-window :wk "Switch other window"))
+  (rune/leader-keys
+    "e" '(:ignore t :wk "Evaluate" )
+    "eb" '(eval-buffer :wk "Evaluate Elisp in buffer")
+    "ed" '(eval-defun :wk "Evaluate defun containing or after point")
+    "ee" '(eval-expression :wk "Evaluate an elips expresion")
+    "er" '(eval-region :wk "Evaluate region"))
 
-        (rune/leader-keys
-          "m d" '(:ignore t :wk "Date/deadline")
-          "mdt" '(org-time-stamp :wk "Org time stamp"))
+  (rune/leader-keys
+    "h"  '(:ignore t :wk "Help")
+    "hf" '(describe-function :wk "Describe function")
+    "hv" '(describe-variable :wk "Describe Variable")
+    "h r r" '(reload-config :wk "Reload Config file"))
 
-        (rune/leader-keys
-          "m" '(:ignore t :wk "Org")
-          "ma" '(org-agenda-list :which-key "Org-agenda list")
-          "me" '(org-export-dispatch :wk "Org export dispath")
-          "mi" '(org-toggle-item :wk "Org toggle item")
-          "mt" '(org-todo :wk "Org todo")
-          "mB" '(org-babel-tangle :wk "Org babel tangle"))) 
+  (rune/leader-keys
+    "i" '(:ignore t :wk "Ivy")
+    "ir" '(ivy-resume :wk "Ivy Resume")
+    "ib" '(ivy-switch-buffer-other-window :wk "Switch other window"))
+
+  (rune/leader-keys
+    "m d" '(:ignore t :wk "Date/deadline")
+    "mdt" '(org-time-stamp :wk "Org time stamp"))
+
+  (rune/leader-keys
+    "m" '(:ignore t :wk "Org")
+    "ma" '(org-agenda-list :which-key "Org-agenda list")
+    "me" '(org-export-dispatch :wk "Org export dispath")
+    "mi" '(org-toggle-item :wk "Org toggle item")
+    "mt" '(org-todo :wk "Org todo")
+    "mB" '(org-babel-tangle :wk "Org babel tangle"))) 
 #+end_src
 
 ** Function to reload emacs 
 
 #+begin_src emacs-lisp
-  (defun reload-config ()
-    (interactive)
-    (load-file user-init-file)
-    (load-file user-init-file)
-    (message "Config reloaded"))
+(defun reload-config ()
+  (interactive)
+  (load-file user-init-file)
+  (load-file user-init-file)
+  (message "Config reloaded"))
 #+end_src
+
 
 * Themes and UI
 
@@ -455,7 +465,6 @@ If you aren't sure what colors do you want
 	  (load-theme 'doom-palenight)
 	;; Light
 	(load-theme 'doom-lantern))))
-
 #+end_src
 
 ** Which-key
@@ -516,17 +525,17 @@ Emacs has so many keybindings, so it's better to know how those work
 Really helpful to describe what all this things do.
 
 #+begin_src emacs-lisp
-;; Helpful package
-(use-package helpful
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-funtion #'helpful-callable)
-  (counsel-describe-variable-funtion #'helpful-variable)
-  :bind
-  ([remap describe-command] . helpful-command)
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . heplful-key))
+  ;; Helpful package
+  (use-package helpful
+    :commands (helpful-callable helpful-variable helpful-command helpful-key)
+    :custom
+    (counsel-describe-function-funtion #'helpful-callable)
+    (counsel-describe-variable-funtion #'helpful-variable)
+    :bind
+    ([remap describe-command] . helpful-command)
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . heplful-key))
 #+end_src
 
 ** All the icons
@@ -547,40 +556,40 @@ For things related to icons, such as dired, ivy and others
 Defaults fonts aren't cool, better a custom one
 
 #+begin_src emacs-lisp
-  ;; Font Config -> Family
-  ;;(set-frame-font "Iosevka:size=14" nil t)
-  (set-face-attribute
-   'default nil
-   :font "Iosevka :antialias=subpixel"
-   :height 110)
-  ;;Set fixed face ->
-  (set-face-attribute
-   'fixed-pitch nil
-   :font "Iosevka"
-   :weight 'medium
-   :height 130)
-  ;; Set variable face -> src-blocks
-  (set-face-attribute
-   'variable-pitch nil
-   :font "Iosevka"
-   :weight 'regular
-   :height 130)
-  ;; Set font for comments
-  (set-face-attribute 'font-lock-comment-face nil
-  	      :slant 'italic)
-  (set-face-attribute 'font-lock-keyword-face nil
-  	      :slant 'italic)
+;; Font Config -> Family
+(set-face-attribute 'default nil
+		    :font "Iosevka"
+		    :weight 'medium
+		    :height 120)
 
-  ;; Using the correct fonts in emacsclient
-  (add-to-list 'default-frame-alist '(font . "Iosevka"))
-  (add-to-list 'initial-frame-alist '(font . "Iosevka"))
+;;Set fixed face 
+(set-face-attribute 'fixed-pitch nil
+		    :font "Iosevka"
+		    :weight 'regular
+		    :height 110)
 
-  (use-package mixed-pitch
-    :defer t
-    :config
-    (setq mixed-pitch-set-height nil)
-    (dolist (face'(org-date org-priority org-tag org-special-keyword))
-      (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
+;; Set variable face -> src-blocks
+(set-face-attribute 'variable-pitch nil
+		    :font "Iosevka"
+		    :weight 'medium
+		    :height 120)
+
+;; Set font for comments
+(set-face-attribute 'font-lock-comment-face nil
+  	    :slant 'italic)
+(set-face-attribute 'font-lock-keyword-face nil
+  	    :slant 'italic)
+
+;; Using the correct fonts in emacsclient
+(add-to-list 'default-frame-alist '(font . "Iosevka"))
+(add-to-list 'initial-frame-alist '(font . "Iosevka"))
+
+(use-package mixed-pitch
+   :defer t
+   :config
+   (setq mixed-pitch-set-height nil)
+   (dolist (face'(org-date org-priority org-tag org-special-keyword))
+     (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
 #+end_src
 
 
@@ -592,30 +601,23 @@ The killer feature of emacs and one of the best tools for organize your life
 
 #+begin_src emacs-lisp
   ;; Org mode
-  (defun ogm/org-mode-setup ()
-    (org-indent-mode)
-    (variable-pitch-mode 1)
-    (visual-line-mode 1))
-
-  (use-package org
-    :commands (org-agenda)
-    :hook (org-mode . ogm/org-mode-setup)
-    :config
-    (setq org-ellipsis " ▾")
-    (setq org-hide-emphasis-markers t))
+  (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  (setq org-ellipsis " ▾")
+  (setq org-hide-emphasis-markers t)
 
   ;; Org agenda
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-todo-keywords
-    	'((sequence "TODO(t)" "NEXT(n)" "PENDING(p)" "|" "DONE(d)")))
+	'((sequence "TODO(t)" "NEXT(n)" "PENDING(p)" "|" "DONE(d)")))
 
   ;; Disable electric indent
   (electric-indent-mode -1)
-  (eval-after-load 'org-indent '(diminish 'org-indent))
-
-#+end_src
+  (setq org-edit-src-content-indentation 0)
+  (add-hook 'org-mode-hook 'org-indent-mode)
+ #+end_src
 
 ** Table of contents
 
@@ -644,27 +646,27 @@ Nice heading bullets
 Better rendering fonts in org-mode
 
 #+begin_src emacs-lisp
-  ;; Correct heading font
+;; Correct heading font
   (require 'org-faces)
   (with-eval-after-load 'org-faces
-    (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.1)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.0)
-                  (org-level-6 . 1.0)
-                  (org-level-7 . 1.0)
-                  (org-level-8 . 1.0)))
-    (set-face-attribute (car face) nil :font "Iosevka" :weight 'bold :height (cdr face)))
-  
-;; Ensure the correct fonts for the ORGMODE
-(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-special-keyword nil :inherit'(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+   (dolist (face '((org-level-1 . 1.2)
+                   (org-level-2 . 1.1)
+                   (org-level-3 . 1.1)
+                   (org-level-4 . 1.0)
+                   (org-level-5 . 1.0)
+                   (org-level-6 . 1.0)
+                   (org-level-7 . 1.0)
+                   (org-level-8 . 1.0)))
+    (set-face-attribute (car face) nil :font "Iosevka" :weight 'bold :height (cdr face))))
+
+ ;;  ;; Ensure the correct fonts for the ORGMODE
+ ;;  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+ ;;  (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+ ;;  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+ ;;  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+ ;;  (set-face-attribute 'org-special-keyword nil :inherit'(font-lock-comment-face fixed-pitch))
+ ;;  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+ ;;  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 #+end_src
 
 ** Auto tangle
@@ -675,10 +677,10 @@ This is for write the config file after save it, you need to add the properties 
   ;; Auto-tangle 
   (defun ogm/org-babel-tangle-config ()
     (when (string-equal (buffer-file-name)
-                        (expand-file-name "~/dotfiles-oku/emacs2023.org"))
+			(expand-file-name "~/dotfiles-oku/emacs2023.org"))
       ;;Dinamic Scoping
       (let ((org-confirm-babel-evaluate nil))
-        (org-babel-tangle))))
+	(org-babel-tangle))))
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'ogm/org-babel-tangle-config)))
 #+end_src
@@ -948,6 +950,7 @@ Snippets, all need bolerplate code to make it beautiful
 
 #+end_src
 
+
 * Speeding up emacs
 
 With all this packages and configurations emacs became slow when you start using it.
@@ -1021,19 +1024,19 @@ To have a better cleaning in the files
       (set-face-attribute
        'default nil
        :font "Iosevka :antialias=subpixel"
-       :height 110)
-      ;;Set fixed face 
+       :height 120)
+      ;; Set fixed face 
       (set-face-attribute
        'fixed-pitch nil
        :font "Iosevka"
        :weight 'medium
-       :height 130)
+       :height 110)
       ;; Set variable face -> src-blocks
       (set-face-attribute
        'variable-pitch nil
        :font "Iosevka"
        :weight 'regular
-       :height 130)
+       :height 110)
 
       ;; Set font for comments
       (set-face-attribute 'font-lock-comment-face nil
