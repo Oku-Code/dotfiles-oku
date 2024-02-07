@@ -1,4 +1,4 @@
-+TITLE: Configuration file for GNU/Emacs
+#+#TITLE: Configuration file for GNU/Emacs
 #+AUTHOR: Oku
 #+DATE: <2023-07-14 Fri 10:33>
 #+DESCRIPTION: Oku's new config file for emacs
@@ -34,8 +34,9 @@
   - [[#helpful][Helpful]]
   - [[#all-the-icons][All the icons]]
   - [[#font-configuration][Font configuration]]
+  - [[#transparent-emacs][Transparent Emacs]]
 - [[#org-mode][Org mode]]
-  - [[#org-mode-1][Org mode]]
+  - [[#basics-1][Basics]]
   - [[#table-of-contents][Table of contents]]
   - [[#org-bullets][Org bullets]]
   - [[#org-faces][Org faces]]
@@ -46,7 +47,6 @@
   - [[#vterm-toggle][Vterm Toggle]]
 - [[#emacs-ide][EMACS IDE]]
   - [[#projectile][Projectile]]
-  - [[#language-support][Language support]]
   - [[#magit][Magit]]
   - [[#lsp-ui][LSP UI]]
   - [[#smart-pairs][Smart Pairs]]
@@ -58,6 +58,7 @@
   - [[#markdown][Markdown]]
   - [[#yasnipet][YASnipet]]
   - [[#rust-language-support][Rust language support]]
+  - [[#nix-and-nixfiles][Nix and NixFiles]]
 - [[#speeding-up-emacs][Speeding up emacs]]
   - [[#garbage-collector][Garbage collector]]
   - [[#no-littering][No littering]]
@@ -65,12 +66,13 @@
   - [[#check-the-os-you-are-currently-running][Check the os you are currently running]]
   - [[#check-if-confing-is-loading-in-daemon][Check if confing is loading in daemon]]
   - [[#configuring-the-ui-for-new-frames][Configuring the UI for new frames]]
+  - [[#scrollbar-disable-in-all-modes][Scrollbar disable in all modes]]
+  - [[#transient][Transient]]
 
 * Emacs configuration
 
 The second version of this configuration file, same principle but changing things thanks to
 DT series, let's see how it goes and using elpaca package manager, *Let's go*.
-
 
 * Basics
 
@@ -112,7 +114,8 @@ Self descriptive
       '((fullscreen . maximized)))
 
 ;; Transparent emacs
-(add-to-list 'default-frame-alist '((alpha-background . 85)))
+(set-frame-parameter (selected-frame) 'alpha '(85 . 50))
+(add-to-list 'default-frame-alist '(alpha . (85 . 50)))
 #+end_src
 
 ** Keybindings
@@ -142,7 +145,7 @@ Make emacs more extensible with packages
 
 #+begin_src emacs-lisp
   ;; Elpaca 
-  (defvar elpaca-installer-version 0.5)
+  (defvar elpaca-installer-version 0.6)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -426,14 +429,14 @@ Scratch is pretty, but i like to have a nice welcome screen
     :init
     (setq initial-buffer-choice 'dashboard-open)
     ;; Custom message title
-    (setq dashboard-banner-logo-title "八雲紫 ~ ( The emacs powerhouse )")
+    (setq dashboard-banner-logo-title "レミリア・スカーレット ~ [井の中の蛙大海を知らず]")
     ;; My beloved
-    (setq dashboard-startup-banner "~/Pictures/yukari2.png")
+    (setq dashboard-startup-banner "~/pics/remi.png")
     (setq dashboard-center-content t)
     (setq dashboard-show-shortcut nil)
-    (setq dashboard-items '((recents . 3)
-                            (agenda . 2)
-                            (projects . 1)))
+    (setq dashboard-items '((recents . 4)
+                            (agenda . 3)
+                            (projects . 2)))
     (setq dashboard-set-footer nil)
     (setq dashboard-set-info-init t)
     (setq dashboard-set-file-icons t)
@@ -450,21 +453,27 @@ Scratch is pretty, but i like to have a nice welcome screen
 If you aren't sure what colors do you want
 
 #+begin_src emacs-lisp
-  (setq custom-safe-themes t)
-    ;; Doom Themes
-  (use-package doom-themes
-    :ensure t
-    :config
-    (setq doom-themes-enable-bold t
-	  doom-themes-enable-italic t)
-    (doom-themes-org-config)
-    ;; Scheduling themes acording time zone
-    (let ((hour (string-to-number (substring (current-time-string) 11 13))))
-      (if (or ( > hour 18 ) ( < hour 7 ))
-	  ;; Dark
-	  (load-theme 'doom-palenight)
-	;; Light
-	(load-theme 'doom-lantern))))
+(setq custom-safe-themes t)
+  ;; Doom Themes
+(use-package doom-themes
+  :ensure t
+  :config
+  (setq doom-themes-enable-bold t
+	doom-themes-enable-italic t)
+  (doom-themes-org-config)
+  ;; Scheduling themes acording time zone
+  (let ((hour (string-to-number (substring (current-time-string) 11 13))))
+    (if (or ( > hour 18 ) ( < hour 7 ))
+	;; Dark
+	(load-theme 'doom-nord)
+      ;; Light
+      (load-theme 'doom-nord-light))))
+
+(use-package doom-modeline
+   :ensure t
+   :init (doom-modeline-mode 1)
+   :custom
+   (doom-modeline-height 30))
 #+end_src
 
 ** Which-key
@@ -495,16 +504,16 @@ Emacs has so many keybindings, so it's better to know how those work
 
   ;; Disable line numbers for some modes
   (dolist (mode '(org-mode-hook
-                  term-mode-hook
-                  eshell-mode-hook
-  		vterm-mode-hook
-                  markdown-mode-hook
-                  org-agenda-mode-hook
-                  agenda-command-mode-hook
-                  calendar-mode-hook
-                  cargo-run-mode-hook
-                  dired-mode-hook
-                  info-mode-hook))
+		  term-mode-hook
+		  eshell-mode-hook
+		  vterm-mode-hook
+		  markdown-mode-hook
+		  org-agenda-mode-hook
+		  agenda-command-mode-hook
+		  calendar-mode-hook
+		  cargo-run-mode-hook
+		  dired-mode-hook
+		  info-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
@@ -558,19 +567,19 @@ Defaults fonts aren't cool, better a custom one
 #+begin_src emacs-lisp
 ;; Font Config -> Family
 (set-face-attribute 'default nil
-		    :font "Iosevka"
+		    :font "IBM Plex Mono"
 		    :weight 'medium
 		    :height 120)
 
 ;;Set fixed face 
 (set-face-attribute 'fixed-pitch nil
-		    :font "Iosevka"
+		    :font "IBM Plex Mono"
 		    :weight 'regular
 		    :height 110)
 
 ;; Set variable face -> src-blocks
 (set-face-attribute 'variable-pitch nil
-		    :font "Iosevka"
+		    :font "IBM Plex Mono"
 		    :weight 'medium
 		    :height 120)
 
@@ -581,8 +590,8 @@ Defaults fonts aren't cool, better a custom one
   	    :slant 'italic)
 
 ;; Using the correct fonts in emacsclient
-(add-to-list 'default-frame-alist '(font . "Iosevka"))
-(add-to-list 'initial-frame-alist '(font . "Iosevka"))
+(add-to-list 'default-frame-alist '(font . "IBM Plex Mono"))
+(add-to-list 'initial-frame-alist '(font . "IBM Plex Mono"))
 
 (use-package mixed-pitch
    :defer t
@@ -592,31 +601,40 @@ Defaults fonts aren't cool, better a custom one
      (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
 #+end_src
 
+** Transparent Emacs
+
+#+begin_src emacs-lisp
+(set-frame-parameter nil 'alpha-background 95)
+(add-to-list 'default-frame-alist '(alpha-background . 95))
+(add-to-list 'initial-frame-alist '(alpha-background . 95))
+#+end_src
+
 
 * Org mode
 
 The killer feature of emacs and one of the best tools for organize your life
 
-** Org mode
+** Basics
 
 #+begin_src emacs-lisp
-  ;; Org mode
-  (variable-pitch-mode 1)
-  (visual-line-mode 1)
-  (setq org-ellipsis " ▾")
-  (setq org-hide-emphasis-markers t)
+;; Org mode
+(variable-pitch-mode 1)
+(visual-line-mode 1)
+(auto-fill-mode 1)
+(setq org-ellipsis " ▾")
+(setq org-hide-emphasis-markers t)
 
-  ;; Org agenda
-  (setq org-agenda-start-with-log-mode t)
-  (setq org-log-done 'time)
-  (setq org-log-into-drawer t)
-  (setq org-todo-keywords
-	'((sequence "TODO(t)" "NEXT(n)" "PENDING(p)" "|" "DONE(d)")))
+;; Org agenda
+(setq org-agenda-start-with-log-mode t)
+(setq org-log-done 'time)
+(setq org-log-into-drawer t)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "PENDING(p)" "|" "DONE(d)")))
 
-  ;; Disable electric indent
-  (electric-indent-mode -1)
-  (setq org-edit-src-content-indentation 0)
-  (add-hook 'org-mode-hook 'org-indent-mode)
+;; Disable electric indent
+(electric-indent-mode -1)
+(setq org-edit-src-content-indentation 0)
+(add-hook 'org-mode-hook 'org-indent-mode)
  #+end_src
 
 ** Table of contents
@@ -657,7 +675,7 @@ Better rendering fonts in org-mode
                    (org-level-6 . 1.0)
                    (org-level-7 . 1.0)
                    (org-level-8 . 1.0)))
-    (set-face-attribute (car face) nil :font "Iosevka" :weight 'bold :height (cdr face))))
+    (set-face-attribute (car face) nil :font "IBM Plex Mono" :weight 'bold :height (cdr face))))
 
  ;;  ;; Ensure the correct fonts for the ORGMODE
  ;;  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -714,10 +732,10 @@ Org tempo allows to create src blocks without write the entire thing here we hav
 Vterm is an terminal emulator for emacs
 
 #+begin_src emacs-lisp
-  (use-package vterm
-    :config
-    (setq shell-file-name "/bin/bash"
-  	vterm-max-scrollback 500))
+  ;(use-package vterm
+  ;  :config
+  ;  (setq shell-file-name "/bin/bash"
+  ;	vterm-max-scrollback 500))
 #+end_src
 
 ** Vterm Toggle
@@ -725,20 +743,20 @@ Vterm is an terminal emulator for emacs
 Toggle the vterm terminal and your buffer are you in
 
 #+begin_src emacs-lisp
-  (use-package vterm-toggle
-    :after vterm
-    :config
-    (setq vterm-toggle-fullscreen-p nil)
-    (setq vterm-toggle-scope 'project)
-    (add-to-list 'display-buffer-alist
-  	       '((lambda (buffer-or-name _)
-  		   (let ((buffer (get-buffer buffer-or-name)))
-  		     (with-current-buffer buffer
-  		       (or (equal major-mode 'vterm-mode)
-  			   (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-  		 (display-buffer-reuse-window display-buffer-at-bottom)
-  		 (reusable-frames . visible)
-  		 (window-height . 0.3))))
+;  (use-package vterm-toggle
+;    :after vterm
+;    :config
+;    (setq vterm-toggle-fullscreen-p nil)
+;    (setq vterm-toggle-scope 'project)
+;    (add-to-list 'display-buffer-alist
+;  	       '((lambda (buffer-or-name _)
+; 		   (let ((buffer (get-buffer buffer-or-name)))
+; 		     (with-current-buffer buffer
+; 		       (or (equal major-mode 'vterm-mode)
+; 			   (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+; 		 (display-buffer-reuse-window display-buffer-at-bottom)
+; 		 (reusable-frames . visible)
+; 		 (window-height . 0.3))))
 #+end_src
 
 
@@ -763,8 +781,6 @@ Projectile is a project interaction library for emacs, manage projects as develo
     (setq projectile-project-search-path '("~/Documents")))
   (setq projectile-switch-project-action #'projectile-dired))
 #+end_src
-
-** Language support
 
 ** Magit  
 
@@ -798,10 +814,11 @@ UI setup for code modes like ~C, C++, Python and Rust~ and more
 ** Smart Pairs
 
 #+begin_src emacs-lisp
-  (use-package smartparens
-    :after lsp)
-  (add-hook 'rust-mode-hook #'smartparens-mode)
-  (add-hook 'python-mode-hook #'smartparens-mode)
+(use-package smartparens
+  :after lsp)
+(add-hook 'rust-mode-hook #'smartparens-mode)
+(add-hook 'python-mode-hook #'smartparens-mode)
+(add-hook 'nix-mode-hook #'smartparens-mode)
 #+end_src
 
 ** LSP Mode 
@@ -856,15 +873,15 @@ Don't display all minor modes
     :after lsp-mode
     :hook (lsp-mode . company-mode)
     :bind(
-  	:map company-active-map
-               ("<tab>" . company-complete-selection)
-               ("C-n" . company-select-next )
-               ("C-p" . company-select-previous)
-               ("M-<" . company-select-first)
-               ("M->" . company-select-last)
-               )
+	:map company-active-map
+	       ("<tab>" . company-complete-selection)
+	       ("C-n" . company-select-next )
+	       ("C-p" . company-select-previous)
+	       ("M-<" . company-select-first)
+	       ("M->" . company-select-last)
+	       )
     (:map lsp-mode-map
-          ("<tab>" . company-indent-or-complete-common))
+	  ("<tab>" . company-indent-or-complete-common))
     :custom
     (company-begin-commands '(self-insert-command))
     (company-show-numbers t)
@@ -948,6 +965,11 @@ Snippets, all need bolerplate code to make it beautiful
             #'lsp)
 #+end_src
 
+** Nix and NixFiles
+
+#+begin_src emacs-lisp
+(use-package nix-mode
+   :mode "\\.nix\\'")
 #+end_src
 
 
@@ -1016,25 +1038,25 @@ To have a better cleaning in the files
       (message "Loading in regular emacs"))
 #+end_src
 
-** Configuring the UI for new frames
+** Configuring the UI for new frames 
 
 #+begin_src emacs-lisp
   (defun efs/set-font-faces ()
     (message "Setting faces")
       (set-face-attribute
        'default nil
-       :font "Iosevka :antialias=subpixel"
+       :font "IBM Plex Mono :antialias=subpixel"
        :height 120)
       ;; Set fixed face 
       (set-face-attribute
        'fixed-pitch nil
-       :font "Iosevka"
+       :font "IBM Plex Mono"
        :weight 'medium
        :height 110)
       ;; Set variable face -> src-blocks
       (set-face-attribute
        'variable-pitch nil
-       :font "Iosevka"
+       :font "IBM Plex Mono"
        :weight 'regular
        :height 110)
 
@@ -1052,4 +1074,19 @@ To have a better cleaning in the files
     (efs/set-font-faces))
 #+end_src
 
+** Scrollbar disable in all modes
+
+#+begin_src emacs-lisp
+(defun my/disable-scroll-bars (frame)
+  (modify-frame-parameters frame
+			   '((vertical-scroll-bars . nil)
+			     (horizontal-scroll-bars . nil))))
+(add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+#+end_src
+
+** Transient
+
+#+begin_src emacs-lisp
+(use-package transient)
+#+end_src
 
