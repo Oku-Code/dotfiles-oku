@@ -1,0 +1,620 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Oku-Code
+#+DESCRIPTION: Emacs configuration 2024 edition
+#+OPTIONS: toc2 tags:nil
+#+DATE: <2024-04-17 mié.>
+#+PROPERTIES: header-args:emacs-lisp :tangle user-emacs-directory
+
+* Readme :noexport:
+
+The proporse of this org document is to have this new emacs config in one place, and also use
+literative programming paradigm to use this new version of org
+configuration.
+
+* Table of contents :toc:
+- [[#basics][Basics]]
+  - [[#disable-unnesessary-things][Disable unnesessary things]]
+  - [[#set-global-keybindings][Set global keybindings]]
+  - [[#set-startup-buffer-mode][Set startup buffer mode]]
+  - [[#set-a-custom-font][Set a custom font]]
+  - [[#set-scrollbars-to-off][Set scrollbars to off]]
+- [[#configuring-straight-use-package][Configuring straight use package]]
+  - [[#setting-up-an-early-initel][Setting up an early-init.el]]
+  - [[#integration-with-use-package][Integration with use-package]]
+- [[#packages][Packages]]
+  - [[#mixed-pitch][Mixed pitch]]
+  - [[#ivy][IVY]]
+  - [[#counsel][Counsel]]
+  - [[#ivy-rich][IVY-RICH]]
+  - [[#which-key][Which key]]
+  - [[#helpful][Helpful]]
+  - [[#projectile][Projectile]]
+  - [[#no-littering][No littering]]
+  - [[#diminish][Diminish]]
+- [[#themes-and-ui][Themes and UI]]
+  - [[#nerd-icons-and-all-the-icons][Nerd Icons and All The Icons]]
+  - [[#make-themes-safe][Make themes safe]]
+  - [[#doom-themes][Doom themes]]
+  - [[#ef-themes][EF themes]]
+  - [[#lambda-themes][Lambda Themes]]
+  - [[#doom-modeline][Doom Modeline]]
+  - [[#lambda-modeline][Lambda modeline]]
+  - [[#switching-dark-and-light-themes][Switching dark and light themes]]
+  - [[#where-to-display-number-rows][Where to display number rows]]
+  - [[#dashboard][Dashboard]]
+  - [[#rainbow-delimiters][Rainbow Delimiters]]
+- [[#org-mode-enhancements][Org Mode Enhancements]]
+  - [[#basics-1][Basics]]
+  - [[#org-emphasis][Org Emphasis]]
+  - [[#org-agenda][Org Agenda]]
+  - [[#toc-org][Toc Org]]
+  - [[#org-bullets][Org bullets]]
+  - [[#org-faces][Org faces]]
+  - [[#org-tempo][Org Tempo]]
+  - [[#org-babel-tangle][Org Babel Tangle]]
+- [[#emacs-garbage-collector][Emacs garbage collector]]
+
+* Basics
+
+** Disable unnesessary things
+
+Disable some modes to have a pretty emacs looking
+
+#+NAME: basics
+#+begin_src emacs-lisp :results none
+  ;; Basics
+  (setq inhibit-startup-message t)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1)
+  (set-fringe-mode -10)
+  (setq fill-column 100)
+  (setq use-short-awswers t)
+  (electric-pair-mode 1)
+  (global-auto-revert-mode t)
+  (global-display-line-numbers-mode 1)
+  (global-visual-line-mode t)
+
+  (add-hook 'org-mode-hook (lambda ()
+                             (setq-local electric-pair-inhibit-predicate
+                                         `(lambda (c)
+                                            (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+#+end_src
+
+** Set global keybindings
+
+#+NAME: bindings
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
+
+** Set startup buffer mode
+
+#+NAME: startup_buffers
+#+begin_src emacs-lisp
+  (setq initial-frame-alist '((fullscreen . maximized))
+        default-frame-alist '((fullscreen . maximized)))
+#+end_src
+
+** Set a custom font
+
+#+NAME: fonts
+#+begin_src emacs-lisp
+  (add-to-list 'default-frame-alist '(font . "Consolas"))
+  (add-to-list 'initial-frame-alist '(font . "Consolas"))
+
+  (defun efs/set-font-faces ()
+    (message "Setting Faces...")
+    (set-face-attribute 'default nil :font "Consolas" :height 120)
+    (set-face-attribute 'fixed-pitch nil :font "Consolas" :height 110 :weight 'medium)
+    (set-face-attribute 'variable-pitch nil :font "Consolas" :height 110 :weight 'regular)
+    (set-face-attribute 'font-lock-comment-face nil :slant 'italic)
+    (set-face-attribute 'font-lock-keyword-face nil :slant 'italic))
+
+    (if (daemonp)
+	(add-hook 'after-make-frame-functions
+		  (lambda (frame)
+		    (with-selected-frame frame
+		      (efs/set-font-faces))))
+      (efs/set-font-faces))
+#+end_src
+
+** Set scrollbars to off
+
+#+NAME: scrollbars
+#+begin_src emacs-lisp
+  (defun my/disable-scroll-bars (frame)
+    (modify-frame-parameters frame
+			     '((vertical-scroll-bars . nil)
+			       (horizonta-scroll-bars . nil))))
+
+  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+#+end_src
+
+
+* Configuring straight use package
+
+Emacs packages allows to extended functionality and make emacs more
+powerful for that reason configuring =use-package= is important
+
+#+NAME: straight_config
+#+begin_src emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name
+          "straight/repos/straight.el/bootstrap.el"
+          (or (bound-and-true-p straight-base-dir)
+              user-emacs-directory)))
+        (bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+end_src
+
+** Setting up an early-init.el 
+
+#+NAME: setup_early
+#+begin_src elisp :tangle ~/.emacs.d/early-init.el
+(setq package-enable-at-startup nil)
+#+end_src
+
+
+** Integration with use-package
+
+#+begin_src elisp
+(straight-use-package 'use-package)
+#+end_src
+
+
+* Packages
+
+** Mixed pitch
+
+#+NAME: mixed_pitch
+#+begin_src emacs-lisp
+  (use-package mixed-pitch
+    :straight t
+    :defer t
+    :config
+    (setq mixed-pitch-set-height nil)
+    (dolist (face (org-date org-priority org-tag-org-sepecial-keyword))
+      (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
+#+end_src
+
+** IVY
+
+#+NAME: ivy
+#+begin_src emacs-lisp
+  (use-package ivy
+    :straight t
+    :diminish
+    :config 
+    (ivy-mode 1)
+    :custom
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t))
+#+end_src
+
+** Counsel
+
+#+NAME: counsel
+#+begin_src emacs-lisp
+  (use-package counsel
+    :straight t
+    :after ivy
+    :custom
+    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+    :config
+    (counsel-mode 1))
+#+end_src
+
+** IVY-RICH
+
+#+NAME: ivy_rich
+#+begin_src emacs-lisp
+  (use-package ivy-rich
+    :straight t
+    :after ivy
+    :diminish
+    :init (ivy-rich-mode 1))
+#+end_src
+
+** Which key
+
+#+NAME: which_key
+#+begin_src emacs-lisp
+  (use-package which-key
+    :straight t
+    :diminish which-key-mode
+    :defer 0
+    :init
+    (which-key-mode 1)
+    :config
+    (setq which-key-idle-delay 0.8
+        which-key-sort-order #'which-key-key-order-alpha
+        which-key-separator " -> "
+        which-key-allow-imprecise-window-fit nil
+        which-key-sort-uppercase-first nil
+        which-key-add-column-pading 1
+        which-key-max-display-columns nil
+        which-key-min-display-lines 6
+        which-key-side-window-slot -10
+        which-key-side-window-max-height 0.25))
+#+end_src
+
+** Helpful
+
+#+NAME: helpful
+#+begin_src emacs-lisp
+  (use-package helpful
+    :straight t
+    :commandsn
+    (helpful-callable helpful-variable helpful-comand helpful-key)
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ([remap describe-command] . helpful-command)
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key))
+#+end_src
+
+** Projectile 
+
+#+NAME: projectile
+#+begin_src emacs-lisp :results none
+  ;; Setup projectile
+  (use-package projectile
+    :straight t
+    :diminish projectile-mode
+    :config (projectile-mode)
+    :custom ((projectile-completion-system 'ivy))
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
+    :init
+    (when (file-directory-p "~/Documentos")
+      (setq projectile-project-search-path '("~/Documentos")))
+    (setq projectile-switch-project-action #'projectile-dired))
+#+end_src
+
+** No littering
+
+#+NAME: no_littering
+#+begin_src emacs-lisp
+  (use-package no-littering
+        :straight t)
+#+end_src
+
+** Diminish
+
+#+NAME: diminish
+#+begin_src emacs-lisp
+  (use-package diminish
+        :straight t)
+#+end_src
+
+
+* Themes and UI 
+
+Time to rice
+
+** Nerd Icons and All The Icons
+
+#+NAME: icons
+#+begin_src emacs-lisp
+  (use-package nerd-icons
+    :straight t
+    :after doom-modeline)
+
+  (use-package all-the-icons
+    :straight t
+    :ensure t
+    :if (display-graphic-p))
+
+  (use-package all-the-icons-dired
+    :straight t
+    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+#+end_src
+
+** Make themes safe
+
+#+NAME: safe-themes
+#+begin_src emacs-lisp
+  (setq custom-safe-themes t)
+#+end_src
+
+** Doom themes
+
+#+NAME: doom_themes
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :straight t
+    :ensure t
+    :config
+    (setq doom-themes-enable-bold t
+          doom-themes-enable-italic t)
+    (doom-themes-org-config))
+#+end_src
+
+** EF themes
+
+bugswritter discorvery :)
+
+#+NAME: ef_themes
+#+begin_src emacs-lisp
+  (use-package ef-themes
+    :straight t
+    :if window-system)
+#+end_src
+
+** Lambda Themes
+
+#+begin_src elisp
+(use-package lambda-themes
+  :straight (:type git :host github :repo "lambda-emacs/lambda-themes") 
+  :custom
+  (lambda-themes-set-italic-comments t)
+  (lambda-themes-set-italic-keywords t)
+  (lambda-themes-set-variable-pitch t) 
+#+end_src
+
+** Doom Modeline
+
+#+NAME: doom_mdl
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :straight t
+    :ensure t
+    :init
+    (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-height 25
+          doom-modeline-bar-width 5
+          doom-modeline-persp-icon t
+          doom-modeline-persp-icon t))
+#+end_src
+
+** Lambda modeline
+
+#+begin_src elisp
+(use-package lambda-line
+  :straight (:type git :host github :repo "lambda-emacs/lambda-line") 
+  :custom
+  (lambda-line-icon-time t) ;; requires ClockFace font (see below)
+  (lambda-line-clockface-update-fontset "ClockFaceRect") ;; set clock icon
+  (lambda-line-position 'top) ;; Set position of status-line 
+  (lambda-line-abbrev t) ;; abbreviate major modes
+  (lambda-line-hspace "  ")  ;; add some cushion
+  (lambda-line-prefix t) ;; use a prefix symbol
+  (lambda-line-prefix-padding nil) ;; no extra space for prefix 
+  (lambda-line-status-invert nil)  ;; no invert colors
+  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
+  (lambda-line-gui-mod-symbol " ⬤") 
+  (lambda-line-gui-rw-symbol  " ◯") 
+  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom -.50)
+  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
+  :config
+  ;; activate lambda-line 
+  (lambda-line-mode) 
+  ;; set divider line in footer
+  (when (eq lambda-line-position 'top)
+    (setq-default mode-line-format (list "%_"))
+    (setq mode-line-format (list "%_"))))
+#+end_src
+
+** Switching dark and light themes
+
+#+NAME: switch_dark_light
+#+begin_src emacs-lisp
+  (let ((hour (string-to-number (substring (current-time-string) 11 13))))
+    (if (or ( > hour 19 ) ( < hour 7 ))
+        (load-theme 'doom-Iosvkem)
+      (load-theme 'ef-rosa)))
+#+end_src
+
+** Where to display number rows
+
+#+NAME: display_numbers
+#+begin_src emacs-lisp
+ (dolist (mode ('org-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+** Dashboard
+
+#+NAME: dashboard
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :straight t
+    :ensure t
+    :init
+    (setq initial-buffer-choice 'dashboard-open)
+    ;; Custom message title
+    (setq dashboard-banner-logo-title "Hey it's me, Emacs, THE POWERHOUSE...")
+    ;; My beloved
+    ;;(setq dashboard-startup-banner "~/pics/remi.png")
+    (setq dashboard-center-content t)
+    (setq dashboard-show-shortcut nil)
+    (setq dashboard-items '((recents . 4)
+                            (agenda . 3)
+                            (projects . 2)))
+    (setq dashboard-set-footer nil)
+    (setq dashboard-set-info-init t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-set-heading-icons t)
+    ;; Format: "(icon title help action face prefix suffix)"
+    (setq dashboard-set-navigator t)
+    :config
+    (dashboard-setup-startup-hook))
+#+end_src
+
+** Rainbow Delimiters
+
+#+begin_src emacs-lisp
+  ;; Rainbow mode
+  (use-package rainbow-mode
+    :straight t
+    :diminish
+    :hook org-mode prog-mode)
+
+  ;; Use delimiter rainbow
+  (use-package rainbow-delimiters
+    :straight t
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+
+* Org Mode Enhancements
+
+Org mode is the killer feature in emacs, let configure it.
+
+** Basics
+
+#+NAME: org_basic
+#+begin_src emacs-lisp
+  (variable-pitch-mode 1)
+  (electric-indent-mode -1)
+  (setq org-ellipsis " ▾"
+        org-hide-emphasis-markets t
+        org-edit-src-content-identation 0)
+  (add-hook 'org-mode-hook 'org-indent-mode
+            'org-mode-hook 'auto-fill-mode)
+#+end_src
+
+** Org Emphasis
+#+NAME: org_toggle_emphasis
+#+begin_src elisp
+  (defun org-toggle-emphasis()
+    (interactive)
+    (if org-hide-emphasis-markers
+        (set-variable 'org-hide-emphasis-markers nil)
+      (set-variable 'org-hide-emphasis-markers t))
+    (define-key org-mode-map (kdb "C-c e") 'org-toggle-emphasis))
+#+end_src
+
+** Org Agenda
+
+#+NAME: org_agenda
+#+begin_src emacs-lisp
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time
+        org-log-into-drawer t
+        org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "PENDING(p)" "|" "DONE(d)")))
+#+end_src
+
+** Toc Org
+
+#+NAME: toc_org
+#+begin_src emacs-lisp
+  (use-package toc-org
+    :straight t
+    :commands toc-org-enable
+    :init
+    (add-hook 'org-mode-hook 'toc-org-enable))
+#+end_src
+
+** Org bullets
+
+#+NAME: org_bullets
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :straight t
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+#+end_src
+
+** Org faces
+
+#+NAME: org_faces
+#+begin_src emacs-lisp
+  (require 'org-faces)
+  (with-eval-after-load 'org-faces
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.1)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.0)
+                    (org-level-6 . 1.0)
+                    (org-level-7 . 1.0)
+                    (org-level-8 . 1.0)))
+      (set-face-attribute (car face) nil :font "Consolas" :weight 'bold :height (cdr face))))
+#+end_src
+
+** Org Tempo
+
+#+NAME: org_tempo
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+
+
+** Org Babel Tangle
+
+#+NAME: tangle_config
+#+begin_src emacs-lisp :result none
+  (defun ogm/org-babel-tangle-config ()
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "init.org"))
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () 'after-save-hook #'ogm/org-babel-tangle-config))  
+
+  ;; (org-babel-load-file
+  ;;  (expand-file-name
+  ;;   "init.org" user-emacs-directory))
+#+end_src
+
+
+* Emacs garbage collector
+
+To speed things up is good to have a garbage collector which help
+emacs to being more faster
+
+#+NAME: garbage_collector
+#+begin_src emacs-lisp
+  (use-package gcmh
+    :straight t
+    :diminish
+    :config
+    (setq gcmh-idle-delay 5
+          gcmh-high-cons-threshold (* 16 1024 1024))
+    (gcmh-mode 1))
+
+  (defun gcmh/display-startup-time()
+    (lambda ()
+      (setq gc-cons-porcentage 0.1)))
+
+  (add-hook 'emacs-startup-hook #'gcmh/display-startup-time)
+
+  (defun my/disable-scroll-bars (frame)
+    (modify-frame-parameters frame
+                             '((vertical-scroll-bars . nil)
+                               (horizontal-scroll-bars . nil))))
+
+  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+
+
+  (setq gc-cons-threshold (* 2 1000 1000))
+
+  (defun efs/display-startup-time()
+    (message "Emacs loaded in %s with %d garbage collections"
+             (format "%.2f seconds"
+                     (float-time (time-subtract after-init-time before-init-time)))
+             gcs-done))
+
+  (add-hook 'emacs-startup-hook #'efs/display-startup-time)
+#+end_src
